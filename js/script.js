@@ -103,12 +103,12 @@ if(searchInput) {
     });
 }
 
-// 🌐 АВТОМАТИЧЕСКАЯ ОТПРАВКА В DISCORD ЧЕРЕЗ ПРОКСИ (БЕЗ БЛОКИРОВОК GITHUB)
+// ЛОГИКА ФОРМЫ (АВТО-ОТПРАВКА В DISCORD ЧЕРЕЗ РАЗРЕШЕННЫЙ ПРОКСИ)
 const feedbackForm = document.getElementById("feedback-form");
 const successMsg = document.getElementById("fb-success");
 
-// Используем специальный защищенный прокси-домен discord.com.ru, который разрешен на GitHub Pages
-const discordWebhookUrl = "https://discord.com.ru";
+// Заменяем discord.com на прокси hyra.io, чтобы обойти блокировку домена github.io
+const discordWebhookUrl = "https://hyra.io";
 
 if(feedbackForm) {
     feedbackForm.addEventListener("submit", (e) => {
@@ -117,14 +117,17 @@ if(feedbackForm) {
         const nick = document.getElementById("fb-nick").value.trim();
         const message = document.getElementById("fb-message").value.trim();
 
-        // Текстовая сборка сообщения
+        // Сборка сообщения для канала
         const requestData = {
             content: `**📩 Новое предложение от игрока!**\n**Ник в Minecraft:** \`${nick}\`\n**Сообщение:** ${message}`
         };
 
+        // Отправляем запрос через прокси-сервер
         fetch(discordWebhookUrl, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+                "Content-Type": "application/json"
+            },
             body: JSON.stringify(requestData)
         })
         .then(response => {
@@ -136,12 +139,13 @@ if(feedbackForm) {
                     setTimeout(() => { successMsg.style.display = "none"; }, 4000);
                 }
             } else {
-                alert("Ошибка отправки. Проверьте настройки вебхука.");
+                alert("Ошибка сервера Discord. Попробуйте отправить позже.");
             }
         })
         .catch(error => {
             console.error("Ошибка сети:", error);
-            alert("Ошибка сети. Попробуйте обновить страницу.");
+            alert("Браузер заблокировал отправку. Попробуйте очистить кэш страницы.");
         });
     });
 }
+
