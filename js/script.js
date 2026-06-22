@@ -27,7 +27,7 @@ const itemsData = {
             "Ивент 'Завод'.",
             "Ивент 'Нефтяная платформа'.",
             "Ивент 'Зона раскопок'.",
-            "Ивент 'Аирдроп'."
+            "Ивент 'Аирдроп'." 
         ],
         allowedEvents: ["zavod", "neft", "raskopki", "airdrop"]
     },
@@ -47,7 +47,7 @@ const itemsData = {
         methods: [
             "Ивент 'Нефтяная платформа'."
         ],
-        allowedEvents: ["neft"]
+        allowedEvents: ["neft"] 
     }
 };
 
@@ -116,6 +116,7 @@ document.querySelectorAll(".card").forEach(card => {
 if(closeBtn) closeBtn.addEventListener("click", () => { modal.style.display = "none"; });
 window.addEventListener("click", (e) => { if (e.target === modal) modal.style.display = "none"; });
 
+// Логика поиска
 const searchInput = document.getElementById("search-input");
 const cards = document.querySelectorAll(".card");
 

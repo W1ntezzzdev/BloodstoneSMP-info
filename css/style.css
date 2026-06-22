@@ -255,6 +255,7 @@ header p { color: #888; font-size: 1.1rem; }
 .btn-submit:active { transform: scale(0.98); }
 .success-msg { display: none; color: #4caf50; font-weight: bold; margin-top: 15px; }
 
+/* 🔮 СТИЛИ ДЛЯ ПЛАВАЮЩЕЙ КНОПКИ ДИСКОРДА */
 .discord-floating-btn {
     position: fixed;
     bottom: 25px;
@@ -292,6 +293,7 @@ header p { color: #888; font-size: 1.1rem; }
     transform: rotate(4deg);
 }
 
+/* Адаптив под мобилки (сдвигаем чуть выше, чтобы не мешала пальцам) */
 @media (max-width: 480px) {
     .discord-floating-btn {
         bottom: 20px;
