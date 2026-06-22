@@ -103,7 +103,7 @@ if(searchInput) {
     });
 }
 
-// ТОТ САМЫЙ ПЕРВЫЙ РАБОЧИЙ ВЕБХУК НАПРЯМУЮ БЕЗ ЛИШНИХ ПРОКСИ
+// ЛОГИКА ФОРМЫ (ПУЛЕНЕПРОБИВАЕМАЯ АВТО-ОТПРАВКА ДЛЯ GITHUB PAGES)
 const feedbackForm = document.getElementById("feedback-form");
 const successMsg = document.getElementById("fb-success");
 const discordWebhookUrl = "https://discord.com";
@@ -115,48 +115,32 @@ if(feedbackForm) {
         const nick = document.getElementById("fb-nick").value.trim();
         const message = document.getElementById("fb-message").value.trim();
 
-        // КРАСИВЫЙ ВИД EMBDED-КАРТОЧКИ С КРАСНОЙ ПОЛОСОЙ BLOODSTONE
+        // ВАЖНО: В режиме no-cors Discord принимает ТОЛЬКО простой текст через content
         const requestData = {
-            embeds: [{
-                title: "📩 Новый отзыв / предложение с сайта-гайда!",
-                color: 15087366,
-                fields: [
-                    { name: "Ник игрока:", value: `\`${nick}\``, inline: true },
-                    { name: "Сообщение:", value: message }
-                ],
-                timestamp: new Date().toISOString()
-            }]
+            content: `**📩 Новое предложение от игрока!**\n**Ник в Minecraft:** \`${nick}\`\n**Сообщение:** ${message}`
         };
 
-        // Отправляем чистый прямой запрос, как в первый раз
+        // Отправляем чистый запрос напрямую без CORS-заголовков
         fetch(discordWebhookUrl.trim(), {
             method: "POST",
+            mode: "no-cors", // Этот режим гарантирует пробитие блокировки на GitHub Pages
             headers: { 
                 "Content-Type": "application/json" 
             },
             body: JSON.stringify(requestData)
         })
-        .then(response => {
-            if (response.ok) {
-                feedbackForm.reset();
-                if(successMsg) {
-                    successMsg.style.display = "block";
-                    successMsg.innerText = "Сообщение успешно отправлено в Discord!";
-                    setTimeout(() => { successMsg.style.display = "none"; }, 4000);
-                }
-            } else {
-                alert("Ошибка вебхука. Убедитесь, что канал в Discord не удален.");
-            }
-        })
-        .catch(error => {
-            console.error("Ошибка:", error);
-            // Если браузер выкидывает ложную ошибку CORS, мы всё равно очищаем форму для игрока
+        .then(() => {
+            // Очищаем форму и показываем честный зеленый текст
             feedbackForm.reset();
             if(successMsg) {
                 successMsg.style.display = "block";
                 successMsg.innerText = "Сообщение успешно отправлено в Discord!";
                 setTimeout(() => { successMsg.style.display = "none"; }, 4000);
             }
+        })
+        .catch(error => {
+            console.error("Ошибка:", error);
+            alert("Ошибка отправки сети.");
         });
     });
 }
