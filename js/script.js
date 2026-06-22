@@ -2,27 +2,52 @@ const itemsData = {
     shards: {
         title: "Шардики (Осколки Кристаллов)",
         desc: "Ценная валюта, представленная в виде осколков аметиста. 1 шардик = 10 шардов. Шарды используются для прокачки скиллов,",
-        methods: ["Ивент 'Завод'.", "Ивент 'Нефтяная платформа'.", "Ивент 'Зона раскопок'."]
+        methods: [
+            "Ивент 'Завод'.",
+            "Ивент 'Нефтяная платформа'.",
+            "Ивент 'Зона раскопок'.",
+            "Ивент 'Аирдроп'." // Оставляем: шардики падают на аирдропе
+        ],
+        allowedEvents: ["zavod", "neft", "raskopki", "airdrop"]
     },
     shield: {
         title: "Незеритовый щит",
         desc: "Эпический предмет, который обладает зачарованиями 'Защита 4, Починка, Шипы 3'.",
-        methods: ["Ивент 'Завод'.", "Ивент 'Нефтяная платформа'.", "Ивент 'Зона раскопок'."]
+        methods: [
+            "Ивент 'Завод'.",
+            "Ивент 'Нефтяная платформа'.",
+            "Ивент 'Зона раскопок'."
+        ],
+        allowedEvents: ["zavod", "neft", "raskopki"] // Скрыли аирдроп
     },
     totems: {
         title: "Томемы",
         desc: "Главный залог выживания in PVP. При срабатывании от смерти. Существует 3 типа тотемов: 'Тотем стойкости', 'Тотем скорости', 'Обычный тотем'.",
-        methods: ["Ивент 'Завод'.", "Ивент 'Нефтяная платформа'.", "Ивент 'Зона раскопок'."]
+        methods: [
+            "Ивент 'Завод'.",
+            "Ивент 'Нефтяная платформа'.",
+            "Ивент 'Зона раскопок'.",
+            "Ивент 'Аирдроп'." // Оставляем: тотемы падают на аирдропе
+        ],
+        allowedEvents: ["zavod", "neft", "raskopki", "airdrop"]
     },
     crossbow: {
         title: "Пламенный арбалет",
         desc: "Эпическое оружие, которое обладает зачарованием 'Воспламенение', что позволяет x-bow картинть, 4 раза.",
-        methods: ["Ивент 'Завод'.", "Ивент 'Нефтяная платформа'.", "Ивент 'Зона раскопок'."]
+        methods: [
+            "Ивент 'Завод'.",
+            "Ивент 'Нефтяная платформа'.",
+            "Ивент 'Зона раскопок'."
+        ],
+        allowedEvents: ["zavod", "neft", "raskopki"] // Скрыли аирдроп
     },
     spear: {
         title: "Незеритовое копьё",
         desc: "Редкое копье, котрое в отличии от остальных, оснащено зачарованием 'Рывок 3'. Это зачарование помогает быстро перемещаться.",
-        methods: ["Ивент 'Завод'.", "Ивент 'Нефтяная платформа'.", "Ивент 'Зона раскопок'."]
+        methods: [
+            "Ивент 'Нефтяная платформа'."
+        ],
+        allowedEvents: ["neft"] // Скрыли аирдроп
     }
 };
 
@@ -32,7 +57,7 @@ const modalTitle = document.getElementById("modal-title");
 const modalDesc = document.getElementById("modal-desc");
 const modalMethods = document.getElementById("modal-methods");
 
-// Настройка кликов по спойлерам ивентов (Завод, Нефть, Раскопки)
+// Настройка кликов по спойлерам ивентов (Завод, Нефть, Раскопки, Аирдроп)
 document.querySelectorAll(".event-block").forEach(block => {
     const img = block.querySelector(".event-preview");
     const hint = block.querySelector(".event-hint");
@@ -40,7 +65,7 @@ document.querySelectorAll(".event-block").forEach(block => {
     const toggle = () => {
         block.classList.toggle("active");
         const eventName = block.getAttribute("data-event");
-        const ruNames = { zavod: "Завод", neft: "Нефтяная платформа", raskopki: "Зона раскопок" };
+        const ruNames = { zavod: "Завод", neft: "Нефтяная платформа", raskopki: "Зона раскопок", airdrop: "Аирдроп" };
         
         if (block.classList.contains("active")) {
             hint.innerText = `▼ Скрыть описание ивента '${ruNames[eventName]}'`;
@@ -70,13 +95,20 @@ document.querySelectorAll(".card").forEach(card => {
                 modalMethods.appendChild(li);
             });
 
-            // Сбрасываем спойлеры в закрытое положение
+            // Динамически скрываем локации, где конкретного предмета нет
             document.querySelectorAll(".event-block").forEach(block => {
-                block.classList.remove("active");
                 const eventName = block.getAttribute("data-event");
-                const ruNames = { zavod: "Завод", neft: "Нефтяная платформа", raskopki: "Зона раскопок" };
+                
+                block.classList.remove("active");
+                const ruNames = { zavod: "Завод", neft: "Нефтяная платформа", raskopki: "Зона раскопок", airdrop: "Аирдроп" };
                 const hint = block.querySelector(".event-hint");
                 if(hint) hint.innerText = `▶ Показать описание ивента '${ruNames[eventName]}'`;
+
+                if (item.allowedEvents.includes(eventName)) {
+                    block.style.display = "block";
+                } else {
+                    block.style.display = "none";
+                }
             });
 
             modal.style.display = "flex";
@@ -84,7 +116,6 @@ document.querySelectorAll(".card").forEach(card => {
     });
 });
 
-// Закрытие окна
 if(closeBtn) closeBtn.addEventListener("click", () => { modal.style.display = "none"; });
 window.addEventListener("click", (e) => { if (e.target === modal) modal.style.display = "none"; });
 
@@ -103,12 +134,10 @@ if(searchInput) {
     });
 }
 
-// ТОТ САМЫЙ КРАСИВЫЙ И ПОЧИНЕННЫЙ ТОБОЙ ВЕБХУК
+// ТОТ САМЫЙ РАБОЧИЙ ВЕБХУК FORMDATA
 const feedbackForm = document.getElementById("feedback-form");
 const successMsg = document.getElementById("fb-success");
-
-// Твоя полная, работающая ссылка на вебхук Discord
-const discordWebhookUrl = "https://discord.com/api/webhooks/1518578676164329623/hhwgUwEG3vNEsw-QocSf6-Ep1ikw0iGOErkSxJCciTCBbPXNmaGfaeC-MyBJY2dhxQVf";
+const discordWebhookUrl = "https://discord.com";
 
 if(feedbackForm) {
     feedbackForm.addEventListener("submit", (e) => {
@@ -117,7 +146,6 @@ if(feedbackForm) {
         const nick = document.getElementById("fb-nick").value.trim();
         const message = document.getElementById("fb-message").value.trim();
 
-        // Старый красивый вид карточки с красной полосой Bloodstone
         const embedPayload = {
             embeds: [{
                 title: "📩 Новый отзыв / предложение с сайта-гайда!",
@@ -130,7 +158,6 @@ if(feedbackForm) {
             }]
         };
 
-        // Тот самый метод FormData, который пробивает хостинг Гитхаба без ошибок
         const formData = new FormData();
         formData.append("payload_json", JSON.stringify(embedPayload));
 
@@ -143,7 +170,6 @@ if(feedbackForm) {
             feedbackForm.reset();
             if(successMsg) {
                 successMsg.style.display = "block";
-                successMsg.innerText = "Сообщение успешно отправлено в Discord!";
                 setTimeout(() => { successMsg.style.display = "none"; }, 4000);
             }
         })
@@ -152,3 +178,4 @@ if(feedbackForm) {
         });
     });
 }
+ 
