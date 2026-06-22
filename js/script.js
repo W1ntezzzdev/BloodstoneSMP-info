@@ -137,7 +137,7 @@ if(searchInput) {
 // ТОТ САМЫЙ РАБОЧИЙ ВЕБХУК FORMDATA
 const feedbackForm = document.getElementById("feedback-form");
 const successMsg = document.getElementById("fb-success");
-const discordWebhookUrl = "https://discord.com";
+const discordWebhookUrl = "https://discord.com/api/webhooks/1518578676164329623/hhwgUwEG3vNEsw-QocSf6-Ep1ikw0iGOErkSxJCciTCBbPXNmaGfaeC-MyBJY2dhxQVf";
 
 if(feedbackForm) {
     feedbackForm.addEventListener("submit", (e) => {
