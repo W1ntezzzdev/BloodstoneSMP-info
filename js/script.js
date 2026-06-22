@@ -11,12 +11,12 @@ const itemsData = {
     },
     totems: {
         title: "Томемы",
-        desc: "Главный залог выживания in PVP. При срабатывании от смерти. Существует 3 типа тотемов: 'Тотем стойкости', 'Тотем скорости', 'Обычный тотем'.",
+        desc: "Главный залог выживания in PVP. При срабатывании спасает от смерти. Существует 3 типа тотемов: 'Тотем стойкости', 'Тотем скорости', 'Обычный тотем'.",
         methods: ["Ивент 'Завод'.", "Ивент 'Нефтяная платформа'.", "Ивент 'Зона раскопок'."]
     },
     crossbow: {
         title: "Пламенный арбалет",
-        desc: "Эпическое оружие, которое обладает зачарованием 'Воспламенение', что позволяет x-bow картинть, 4 раза.",
+        desc: "Эпическое оружие, которое обладает зачарованием 'Воспламенение', что позволяет x-bow картить, 4 раза.",
         methods: ["Ивент 'Завод'.", "Ивент 'Нефтяная платформа'.", "Ивент 'Зона раскопок'."]
     },
     spear: {
@@ -103,30 +103,30 @@ if(searchInput) {
     });
 }
 
-// ЛОГИКА ФОРМЫ (АВТО-ОТПРАВКА В DISCORD ЧЕРЕЗ РАЗРЕШЕННЫЙ ПРОКСИ)
+// НАСТОЯЩИЙ ПЕРВОНАЧАЛЬНЫЙ КОД ОТПРАВКИ (НАПРЯМУЮ В DISCORD)
 const feedbackForm = document.getElementById("feedback-form");
 const successMsg = document.getElementById("fb-success");
 
-// Заменяем discord.com на прокси hyra.io, чтобы обойти блокировку домена github.io
-const discordWebhookUrl = "https://hyra.io";
+// Чистая ссылка на твой вебхук без лишних прокси
+const discordWebhookUrl = "https://discord.com";
 
 if(feedbackForm) {
     feedbackForm.addEventListener("submit", (e) => {
-        e.preventDefault();
+        e.preventDefault(); // Защита от перезагрузки страницы
 
         const nick = document.getElementById("fb-nick").value.trim();
         const message = document.getElementById("fb-message").value.trim();
 
-        // Сборка сообщения для канала
+        // Простой и надежный текстовый формат
         const requestData = {
             content: `**📩 Новое предложение от игрока!**\n**Ник в Minecraft:** \`${nick}\`\n**Сообщение:** ${message}`
         };
 
-        // Отправляем запрос через прокси-сервер
-        fetch(discordWebhookUrl, {
+        // Отправляем запрос напрямую на сервера Дискорда, как в первый раз
+        fetch(discordWebhookUrl.trim(), {
             method: "POST",
             headers: { 
-                "Content-Type": "application/json"
+                "Content-Type": "application/json" 
             },
             body: JSON.stringify(requestData)
         })
@@ -139,12 +139,12 @@ if(feedbackForm) {
                     setTimeout(() => { successMsg.style.display = "none"; }, 4000);
                 }
             } else {
-                alert("Ошибка сервера Discord. Попробуйте отправить позже.");
+                alert("Discord отклонил запрос. Проверьте настройки канала.");
             }
         })
         .catch(error => {
             console.error("Ошибка сети:", error);
-            alert("Браузер заблокировал отправку. Попробуйте очистить кэш страницы.");
+            alert("Ошибка сети. Попробуйте обновить страницу.");
         });
     });
 }
