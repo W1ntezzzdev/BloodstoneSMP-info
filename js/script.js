@@ -101,38 +101,50 @@ globalStars.forEach(star => {
     });
 });
 
-// ФОРМА ОТЗЫВОВ ПЕРЕНАПРАВЛЕНИЕМ (БЕЗ БЛОКИРОВОК СЕТИ)
+// ЛОГИКА ФОРМЫ (ПОЛНАЯ АВТО-ОТПРАВКА В ТЕЛЕГРАМ ЧЕРЕЗ РАЗРЕШЕННЫЙ ШЛЮЗ)
 const feedbackForm = document.getElementById("feedback-form");
 const successMsg = document.getElementById("fb-success");
 
+const botToken = "8893667631:AAHi0I76a6mocDM8W4pOAKsYnvIoGW_ZEN8";
+const chatId = "-5504751430";
+
 if(feedbackForm) {
     feedbackForm.addEventListener("submit", (e) => {
-        e.preventDefault();
+        e.preventDefault(); // Защита от перезагрузки страницы
 
         const nick = document.getElementById("fb-nick").value.trim();
         const message = document.getElementById("fb-message").value.trim();
         const starsString = "★".repeat(selectedRating) + "☆".repeat(5 - selectedRating);
 
-        // Формируем красивое текстовое сообщение
-        const textMessage = `📊 Новый отзыв о гайде!\n\n👤 Игрок: ${nick}\n⭐️ Оценка: ${starsString}\n💬 Текст: ${message}`;
+        // Формируем красивый текст для админ-группы Telegram
+        const textMessage = `📊 *Новый отзыв о сайте!*\n\n👤 *Игрок:* \`${nick}\`\n⭐️ *Оценка:* ${starsString} (${selectedRating}/5)\n💬 *Отзыв:* ${message}`;
 
-        // Твой юзернейм бота успешно интегрирован в адрес ссылки
-        const botUsername = "bloodstoneINFO_bot"; 
+        // Оригинальный URL Телеграма
+        const telegramUrl = `https://telegram.org{botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(textMessage)}&parse_mode=Markdown`;
 
-        if(successMsg) {
-            successMsg.style.display = "block";
-            setTimeout(() => { successMsg.style.display = "none"; }, 4000);
-        }
+        // Оборачиваем запрос в прокси allorigins, который разрешен на GitHub Pages на 100%
+        const proxyUrl = `https://allorigins.win{encodeURIComponent(telegramUrl)}`;
 
-        // Безопасно кодируем текст для передачи через URL
-        const encodedText = encodeURIComponent(textMessage);
-        
-        // Открываем бота в новой вкладке и передаем ему текст отзыва в команду /start
-        window.open(`https://t.me{botUsername}?start=${encodedText}`, "_blank");
-        
-        // Сбрасываем форму и звезды на сайте
-        feedbackForm.reset();
-        selectedRating = 0;
-        globalStars.forEach(s => s.classList.remove("selected"));
+        fetch(proxyUrl)
+        .then(response => {
+            if (response.ok) {
+                feedbackForm.reset();
+                selectedRating = 0;
+                globalStars.forEach(s => s.classList.remove("selected"));
+                
+                if(successMsg) {
+                    successMsg.style.display = "block";
+                    successMsg.innerText = "Отзыв успешно отправлен! Спасибо!";
+                    setTimeout(() => { successMsg.style.display = "none"; }, 4000);
+                }
+            } else {
+                alert("Ошибка сервера. Попробуйте отправить позже.");
+            }
+        })
+        .catch(error => {
+            console.error("Ошибка сети:", error);
+            alert("Произошла ошибка CORS. Обновите страницу через Ctrl + F5.");
+        });
     });
 }
+
