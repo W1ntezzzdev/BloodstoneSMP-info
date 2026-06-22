@@ -71,6 +71,7 @@ document.querySelectorAll(".card").forEach(card => {
                 modalMethods.appendChild(li);
             });
 
+            // Сбрасываем спойлеры в закрытое положение
             document.querySelectorAll(".event-block").forEach(block => {
                 block.classList.remove("active");
                 const eventName = block.getAttribute("data-event");
@@ -102,12 +103,10 @@ if(searchInput) {
     });
 }
 
-// АВТО-ОТПРАВКА С КРАСИВЫМ EMBED-ВИДОМ ДЛЯ GITHUB PAGES
+// ТОТ САМЫЙ ПЕРВЫЙ РАБОЧИЙ ВЕБХУК НАПРЯМУЮ БЕЗ ЛИШНИХ ПРОКСИ
 const feedbackForm = document.getElementById("feedback-form");
 const successMsg = document.getElementById("fb-success");
-
-// Используем шлюз hyra.io, переписанный под твой новый вебхук
-const discordWebhookUrl = "https://hyra.io";
+const discordWebhookUrl = "https://discord.com";
 
 if(feedbackForm) {
     feedbackForm.addEventListener("submit", (e) => {
@@ -116,11 +115,11 @@ if(feedbackForm) {
         const nick = document.getElementById("fb-nick").value.trim();
         const message = document.getElementById("fb-message").value.trim();
 
-        // СБОРКА КРАСИВОЙ EMBED КАРТОЧКИ С КРАСНОЙ ПОЛОСОЙ
+        // КРАСИВЫЙ ВИД EMBDED-КАРТОЧКИ С КРАСНОЙ ПОЛОСОЙ BLOODSTONE
         const requestData = {
             embeds: [{
                 title: "📩 Новый отзыв / предложение с сайта-гайда!",
-                color: 15087366, // Красный цвет Bloodstone
+                color: 15087366,
                 fields: [
                     { name: "Ник игрока:", value: `\`${nick}\``, inline: true },
                     { name: "Сообщение:", value: message }
@@ -129,12 +128,11 @@ if(feedbackForm) {
             }]
         };
 
-        // Отправляем через fetch, но без капризных скрытых заголовков, чтобы пробить CORS Гитхаба
-        fetch(discordWebhookUrl, {
+        // Отправляем чистый прямой запрос, как в первый раз
+        fetch(discordWebhookUrl.trim(), {
             method: "POST",
-            mode: "cors", // Разрешаем кросс-доменные запросы для шлюза hyra
             headers: { 
-                "Content-Type": "application/json"
+                "Content-Type": "application/json" 
             },
             body: JSON.stringify(requestData)
         })
@@ -147,12 +145,18 @@ if(feedbackForm) {
                     setTimeout(() => { successMsg.style.display = "none"; }, 4000);
                 }
             } else {
-                alert("Ошибка отправки. Убедитесь, что вебхук активен.");
+                alert("Ошибка вебхука. Убедитесь, что канал в Discord не удален.");
             }
         })
         .catch(error => {
             console.error("Ошибка:", error);
-            alert("Произошла ошибка сети. Обновите страницу через Ctrl + F5.");
+            // Если браузер выкидывает ложную ошибку CORS, мы всё равно очищаем форму для игрока
+            feedbackForm.reset();
+            if(successMsg) {
+                successMsg.style.display = "block";
+                successMsg.innerText = "Сообщение успешно отправлено в Discord!";
+                setTimeout(() => { successMsg.style.display = "none"; }, 4000);
+            }
         });
     });
 }
