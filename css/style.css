@@ -254,3 +254,55 @@ header p { color: #888; font-size: 1.1rem; }
 .btn-submit:hover { background-color: #ff4d5a; }
 .btn-submit:active { transform: scale(0.98); }
 .success-msg { display: none; color: #4caf50; font-weight: bold; margin-top: 15px; }
+
+/* 🔮 СТИЛИ ДЛЯ ПЛАВАЮЩЕЙ КНОПКИ ДИСКОРДА */
+.discord-floating-btn {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    width: 60px;
+    height: 60px;
+    background: radial-gradient(circle, #250406 0%, #110203 100%);
+    border: 2px solid #4a0e12;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.7);
+    cursor: pointer;
+    z-index: 999;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.discord-floating-btn svg {
+    width: 30px;
+    height: 30px;
+    fill: #e63946; /* Красный цвет иконки */
+    transition: fill 0.3s ease, transform 0.3s ease;
+}
+
+/* Эффекты наведения (Неоновый пульс) */
+.discord-floating-btn:hover {
+    transform: scale(1.1) translateY(-3px);
+    border-color: #e63946;
+    box-shadow: 0 0 20px rgba(230, 57, 70, 0.6), 0 5px 15px rgba(0, 0, 0, 0.7);
+}
+
+.discord-floating-btn:hover svg {
+    fill: #fff; /* Иконка белеет при наведении */
+    transform: rotate(4deg);
+}
+
+/* Адаптив под мобилки (сдвигаем чуть выше, чтобы не мешала пальцам) */
+@media (max-width: 480px) {
+    .discord-floating-btn {
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+    }
+    .discord-floating-btn svg {
+        width: 24px;
+        height: 24px;
+    }
+}
