@@ -2,52 +2,27 @@ const itemsData = {
     shards: {
         title: "Шардики (Осколки Кристаллов)",
         desc: "Ценная валюта, представленная в виде осколков аметиста. 1 шардик = 10 шардов. Шарды используются для прокачки скиллов,",
-        methods: [
-            "Ивент 'Завод'.",
-            "Ивент 'Нефтяная платформа'.",
-            "Ивент 'Зона раскопок'."
-        ],
-        imgs: ["img/zavod.png", "img/neft.png", "img/zonaraskopok.png"]
+        methods: ["Ивент 'Завод'.", "Ивент 'Нефтяная платформа'.", "Ивент 'Зона раскопок'."]
     },
     shield: {
         title: "Незеритовый щит",
         desc: "Эпический предмет, который обладает зачарованиями 'Защита 4, Починка, Шипы 3'.",
-        methods: [
-            "Ивент 'Завод'.",
-            "Ивент 'Нефтяная платформа'.",
-            "Ивент 'Зона раскопок'."
-        ],
-        imgs: ["img/zavod.png", "img/neft.png", "img/zonaraskopok.png"]
+        methods: ["Ивент 'Завод'.", "Ивент 'Нефтяная платформа'.", "Ивент 'Зона раскопок'."]
     },
     totems: {
         title: "Томемы",
-        desc: "Главный залог выживания в ПВП. При срабатывании спасает от смерти. Существует 3 типа тотемов: 'Тотем стойкости', 'Тотем скорости', 'Обычный тотем'.",
-        methods: [
-            "Ивент 'Завод'.",
-            "Ивент 'Нефтяная платформа'.",
-            "Ивент 'Зона раскопок'."
-        ],
-        imgs: ["img/zavod.png", "img/neft.png", "img/zonaraskopok.png"]
+        desc: "Главный залог выживания in PVP. При срабатывании спасает от смерти. Существует 3 типа тотемов: 'Тотем стойкости', 'Тотем скорости', 'Обычный тотем'.",
+        methods: ["Ивент 'Завод'.", "Ивент 'Нефтяная платформа'.", "Ивент 'Зона раскопок'."]
     },
     crossbow: {
         title: "Пламенный арбалет",
         desc: "Эпическое оружие, которое обладает зачарованием 'Воспламенение', что позволяет x-bow картить, 4 раза.",
-        methods: [
-            "Ивент 'Завод'.",
-            "Ивент 'Нефтяная платформа'.",
-            "Ивент 'Зона раскопок'."
-        ],
-        imgs: ["img/zavod.png", "img/neft.png", "img/zonaraskopok.png"]
+        methods: ["Ивент 'Завод'.", "Ивент 'Нефтяная платформа'.", "Ивент 'Зона раскопок'."]
     },
     spear: {
         title: "Незеритовое копьё",
         desc: "Редкое копье, котрое в отличии от остальных, оснащено зачарованием 'Рывок 3'. Это зачарование помогает быстро перемещаться.",
-        methods: [
-            "Ивент 'Завод'.",
-            "Ивент 'Нефтяная платформа'.",
-            "Ивент 'Зона раскопок'."
-        ],
-        imgs: ["img/zavod.png", "img/neft.png", "img/zonaraskopok.png"]
+        methods: ["Ивент 'Завод'.", "Ивент 'Нефтяная платформа'.", "Ивент 'Зона раскопок'."]
     }
 };
 
@@ -56,9 +31,29 @@ const closeBtn = document.querySelector(".close-btn");
 const modalTitle = document.getElementById("modal-title");
 const modalDesc = document.getElementById("modal-desc");
 const modalMethods = document.getElementById("modal-methods");
-const modalImagesContainer = document.getElementById("modal-images-container");
 
-// Открытие окна
+// Логика кликов по спойлерам ивентов
+document.querySelectorAll(".event-block").forEach(block => {
+    const img = block.querySelector(".event-preview");
+    const hint = block.querySelector(".event-hint");
+
+    const toggle = () => {
+        block.classList.toggle("active");
+        const eventName = block.getAttribute("data-event");
+        const ruNames = { zavod: "Завод", neft: "Нефтяная платформа", raskopki: "Зона раскопок" };
+        
+        if (block.classList.contains("active")) {
+            hint.innerText = `▼ Скрыть описание ивента '${ruNames[eventName]}'`;
+        } else {
+            hint.innerText = `▶ Показать описание ивента '${ruNames[eventName]}'`;
+        }
+    };
+
+    img.addEventListener("click", toggle);
+    hint.addEventListener("click", toggle);
+});
+
+// Открытие модального окна предмета
 document.querySelectorAll(".card").forEach(card => {
     card.addEventListener("click", () => {
         const itemKey = card.getAttribute("data-item");
@@ -75,13 +70,13 @@ document.querySelectorAll(".card").forEach(card => {
                 modalMethods.appendChild(li);
             });
 
-            modalImagesContainer.innerHTML = "";
-            item.imgs.forEach(imgUrl => {
-                const img = document.createElement("img");
-                img.src = imgUrl;
-                img.className = "event-preview";
-                img.alt = "Локация ивента";
-                modalImagesContainer.appendChild(img);
+            // Сбрасываем спойлеры в закрытое положение
+            document.querySelectorAll(".event-block").forEach(block => {
+                block.classList.remove("active");
+                const eventName = block.getAttribute("data-event");
+                const ruNames = { zavod: "Завод", neft: "Нефтяная платформа", raskopki: "Зона раскопок" };
+                const hint = block.querySelector(".event-hint");
+                hint.innerText = `▶ Показать описание ивента '${ruNames[eventName]}'`;
             });
 
             modal.style.display = "flex";
@@ -101,38 +96,28 @@ searchInput.addEventListener("input", (e) => {
     const value = e.target.value.toLowerCase().trim();
     cards.forEach(card => {
         const itemName = card.querySelector("h3").innerText.toLowerCase();
-        if (itemName.includes(value)) {
-            card.classList.remove("hidden");
-        } else {
-            card.classList.add("hidden");
-        }
+        if (itemName.includes(value)) { card.classList.remove("hidden"); } 
+        else { card.classList.add("hidden"); }
     });
 });
 
-// Логика формы обратной связи с отправкой в Discord
+// Логика формы обратной связи с прямой отправкой в Discord
 const feedbackForm = document.getElementById("feedback-form");
 const successMsg = document.getElementById("fb-success");
-const discordWebhookUrl = "https://discord.com/api/webhooks/1518529672453947558/l7JCEcWL0PN8SN-2LqhH0UIoh3cjxBT1aK70-BSI5DqpamK25HR7hMoWULcYYjsAz9jP";
+const discordWebhookUrl = "https://discord.com";
 
 feedbackForm.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    const nick = document.getElementById("fb-nick").value;
-    const message = document.getElementById("fb-message").value;
+    const nick = document.getElementById("fb-nick").value.trim();
+    const message = document.getElementById("fb-message").value.trim();
 
+    // Самый надежный текстовый формат для отправки
     const requestData = {
-        embeds: [{
-            title: "📩 Новый отзыв / предложение с сайта-гайда!",
-            color: 15087366,
-            fields: [
-                { name: "Ник игрока:", value: nick, inline: true },
-                { name: "Сообщение:", value: message }
-            ],
-            timestamp: new Date().toISOString()
-        }]
+        content: `**📩 Новое предложение от игрока!**\n**Ник:** ${nick}\n**Текст:** ${message}`
     };
 
-    fetch(discordWebhookUrl, {
+    fetch(discordWebhookUrl.trim(), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestData)
@@ -144,11 +129,11 @@ feedbackForm.addEventListener("submit", (e) => {
             successMsg.innerText = "Сообщение успешно отправлено в Discord!";
             setTimeout(() => { successMsg.style.display = "none"; }, 4000);
         } else {
-            alert("Ошибка при отправке. Проверьте настройки вебхука.");
+            alert("Discord отклонил запрос. Проверьте настройки вебхука.");
         }
     })
     .catch(error => {
-        console.error("Ошибка:", error);
-        alert("Не удалось связаться с Discord. Попробуйте позже.");
+        console.error("Ошибка отправки:", error);
+        alert("Не удалось отправить сообщение. Убедитесь, что сайт запущен через Live Server.");
     });
 });
