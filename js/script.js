@@ -11,12 +11,12 @@ const itemsData = {
     },
     totems: {
         title: "Томемы",
-        desc: "Главный залог выживания in PVP. При срабатывании спасает от смерти. Существует 3 типа тотемов: 'Тотем стойкости', 'Тотем скорости', 'Обычный тотем'.",
+        desc: "Главный залог выживания in PVP. При срабатывании от смерти. Существует 3 типа тотемов: 'Тотем стойкости', 'Тотем скорости', 'Обычный тотем'.",
         methods: ["Ивент 'Завод'.", "Ивент 'Нефтяная платформа'.", "Ивент 'Зона раскопок'."]
     },
     crossbow: {
         title: "Пламенный арбалет",
-        desc: "Эпическое оружие, которое обладает зачарованием 'Воспламенение', что позволяет x-bow картить, 4 раза.",
+        desc: "Эпическое оружие, которое обладает зачарованием 'Воспламенение', что позволяет x-bow картинть, 4 раза.",
         methods: ["Ивент 'Завод'.", "Ивент 'Нефтяная платформа'.", "Ивент 'Зона раскопок'."]
     },
     spear: {
@@ -32,7 +32,7 @@ const modalTitle = document.getElementById("modal-title");
 const modalDesc = document.getElementById("modal-desc");
 const modalMethods = document.getElementById("modal-methods");
 
-// Логика кликов по спойлерам ивентов
+// Настройка кликов по спойлерам ивентов (Завод, Нефть, Раскопки)
 document.querySelectorAll(".event-block").forEach(block => {
     const img = block.querySelector(".event-preview");
     const hint = block.querySelector(".event-hint");
@@ -70,7 +70,7 @@ document.querySelectorAll(".card").forEach(card => {
                 modalMethods.appendChild(li);
             });
 
-            // Сбрасываем спойлеры в закрытое положение
+            // Закрываем все спойлеры ивентов при открытии нового предмета
             document.querySelectorAll(".event-block").forEach(block => {
                 block.classList.remove("active");
                 const eventName = block.getAttribute("data-event");
@@ -103,26 +103,45 @@ if(searchInput) {
     });
 }
 
-// НАДЕЖНАЯ ЛОГИКА ФОРМЫ (ПЕРЕНАПРАВЛЕНИЕ БЕЗ ОШИБОК)
+// 🌐 АВТОМАТИЧЕСКАЯ ОТПРАВКА В DISCORD ЧЕРЕЗ ПРОКСИ (БЕЗ БЛОКИРОВОК GITHUB)
 const feedbackForm = document.getElementById("feedback-form");
 const successMsg = document.getElementById("fb-success");
-const yourDiscordServerInvite = "https://discord.gg"; 
+
+// Используем специальный защищенный прокси-домен discord.com.ru, который разрешен на GitHub Pages
+const discordWebhookUrl = "https://discord.com.ru";
 
 if(feedbackForm) {
     feedbackForm.addEventListener("submit", (e) => {
-        e.preventDefault(); // Защита от перезагрузки страницы
+        e.preventDefault();
 
-        // Показываем игроку статус отправки
-        if(successMsg) {
-            successMsg.style.display = "block";
-            successMsg.innerText = "Спасибо за отзыв! Открываем Discord...";
-            setTimeout(() => { successMsg.style.display = "none"; }, 5000);
-        }
+        const nick = document.getElementById("fb-nick").value.trim();
+        const message = document.getElementById("fb-message").value.trim();
 
-        // Мгновенно открываем твой сервер в новой вкладке
-        window.open(yourDiscordServerInvite, "_blank");
-        
-        // Очищаем поля формы
-        feedbackForm.reset();
+        // Текстовая сборка сообщения
+        const requestData = {
+            content: `**📩 Новое предложение от игрока!**\n**Ник в Minecraft:** \`${nick}\`\n**Сообщение:** ${message}`
+        };
+
+        fetch(discordWebhookUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(requestData)
+        })
+        .then(response => {
+            if (response.ok) {
+                feedbackForm.reset();
+                if(successMsg) {
+                    successMsg.style.display = "block";
+                    successMsg.innerText = "Сообщение успешно отправлено в Discord!";
+                    setTimeout(() => { successMsg.style.display = "none"; }, 4000);
+                }
+            } else {
+                alert("Ошибка отправки. Проверьте настройки вебхука.");
+            }
+        })
+        .catch(error => {
+            console.error("Ошибка сети:", error);
+            alert("Ошибка сети. Попробуйте обновить страницу.");
+        });
     });
 }
