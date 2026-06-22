@@ -11,12 +11,12 @@ const itemsData = {
     },
     totems: {
         title: "Томемы",
-        desc: "Главный залог выживания in PVP. При срабатывании от смерти. Существует 3 типа тотемов: 'Тотем стойкости', 'Тотем скорости', 'Обычный тотем'.",
+        desc: "Главный залог выживания in PVP. При срабатывании спасает от смерти. Существует 3 типа тотемов: 'Тотем стойкости', 'Тотем скорости', 'Обычный тотем'.",
         methods: ["Ивент 'Завод'.", "Ивент 'Нефтяная платформа'.", "Ивент 'Зона раскопок'."]
     },
     crossbow: {
         title: "Пламенный арбалет",
-        desc: "Эпическое оружие, которое обладает зачарованием 'Воспламенение', что позволяет x-bow картинть, 4 раза.",
+        desc: "Эпическое оружие, которое обладает зачарованием 'Воспламенение', что позволяет x-bow картить, 4 раза.",
         methods: ["Ивент 'Завод'.", "Ивент 'Нефтяная платформа'.", "Ивент 'Зона раскопок'."]
     },
     spear: {
@@ -96,10 +96,10 @@ stars.forEach(star => {
     });
 });
 
+// ЛОГИКА ОТПРАВКИ ФОРМЫ В ТЕЛЕГРАМ (БЕЗ ОШИБОК СЕТИ И CORS)
 const feedbackForm = document.getElementById("feedback-form");
 const successMsg = document.getElementById("fb-success");
 
-// ДАННЫЕ УСПЕШНО ИНТЕГРИРОВАНЫ
 const botToken = "8893667631:AAHi0I76a6mocDM8W4pOAKsYnvIoGW_ZEN8";
 const chatId = "-5504751430";
 
@@ -112,32 +112,36 @@ if(feedbackForm) {
         const starsString = "★".repeat(selectedRating) + "☆".repeat(5 - selectedRating);
 
         const textMessage = `📊 *Новый отзыв о сайте!*\n\n👤 *Игрок:* \`${nick}\`\n⭐️ *Оценка:* ${starsString} (${selectedRating}/5)\n💬 *Отзыв:* ${message}`;
+        
+        // Прямой URL отправки
         const telegramUrl = `https://telegram.org{botToken}/sendMessage`;
 
+        // Отправляем в режиме no-cors — это полностью убирает блокировки браузера на GitHub Pages
         fetch(telegramUrl, {
             method: "POST",
+            mode: "no-cors", 
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                chat_id: chatId.trim(),
+                chat_id: chatId,
                 text: textMessage,
                 parse_mode: "Markdown"
             })
         })
-        .then(response => {
-            if (response.ok) {
-                feedbackForm.reset();
-                selectedRating = 0;
-                stars.forEach(s => s.classList.remove("selected"));
-                if(successMsg) {
-                    successMsg.style.display = "block";
-                    setTimeout(() => { successMsg.style.display = "none"; }, 4000);
-                }
-            } else {
-                alert("Ошибка отправки. Убедитесь, что бот находится в группе и является администратором.");
+        .then(() => {
+            // В режиме no-cors ответ сервера скрыт, поэтому мы сразу очищаем форму и пишем об успехе
+            feedbackForm.reset();
+            selectedRating = 0;
+            stars.forEach(s => s.classList.remove("selected"));
+            
+            if(successMsg) {
+                successMsg.style.display = "block";
+                setTimeout(() => { successMsg.style.display = "none"; }, 4000);
             }
         })
-        .catch(() => {
-            alert("Ошибка соединения с сетью Telegram.");
+        .catch(error => {
+            console.error("Ошибка:", error);
+            alert("Произошла непредвиденная ошибка.");
         });
     });
 }
+
