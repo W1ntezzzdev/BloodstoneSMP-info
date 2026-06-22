@@ -32,6 +32,7 @@ const modalTitle = document.getElementById("modal-title");
 const modalDesc = document.getElementById("modal-desc");
 const modalMethods = document.getElementById("modal-methods");
 
+// Логика спойлеров ивентов
 document.querySelectorAll(".event-block").forEach(block => {
     const img = block.querySelector(".event-preview");
     const hint = block.querySelector(".event-hint");
@@ -46,6 +47,7 @@ document.querySelectorAll(".event-block").forEach(block => {
     if(hint) hint.addEventListener("click", toggle);
 });
 
+// Открытие окон предметов
 document.querySelectorAll(".card").forEach(card => {
     card.addEventListener("click", () => {
         const itemKey = card.getAttribute("data-item");
@@ -72,6 +74,7 @@ document.querySelectorAll(".card").forEach(card => {
 if(closeBtn) closeBtn.addEventListener("click", () => { modal.style.display = "none"; });
 window.addEventListener("click", (e) => { if (e.target === modal) modal.style.display = "none"; });
 
+// Логика поиска
 const searchInput = document.getElementById("search-input");
 const cards = document.querySelectorAll(".card");
 if(searchInput) {
@@ -84,24 +87,23 @@ if(searchInput) {
     });
 }
 
+// Логика интерактивных звезд
 let selectedRating = 0;
-const stars = document.querySelectorAll(".star");
-stars.forEach(star => {
+const globalStars = document.querySelectorAll(".star");
+
+globalStars.forEach(star => {
     star.addEventListener("click", () => {
-        selectedRating = star.getAttribute("data-value");
-        stars.forEach(s => {
-            if(s.getAttribute("data-value") <= selectedRating) { s.classList.add("selected"); } 
+        selectedRating = parseInt(star.getAttribute("data-value"));
+        globalStars.forEach(s => {
+            if(parseInt(s.getAttribute("data-value")) <= selectedRating) { s.classList.add("selected"); } 
             else { s.classList.remove("selected"); }
         });
     });
 });
 
-// ЛОГИКА ОТПРАВКИ ФОРМЫ В ТЕЛЕГРАМ (ЖЕЛЕЗОБЕТОННЫЙ ВАРИАНТ)
+// ФОРМА ОТЗЫВОВ ПЕРЕНАПРАВЛЕНИЕМ (БЕЗ БЛОКИРОВОК СЕТИ)
 const feedbackForm = document.getElementById("feedback-form");
 const successMsg = document.getElementById("fb-success");
-
-const botToken = "8893667631:AAHi0I76a6mocDM8W4pOAKsYnvIoGW_ZEN8";
-const chatId = "-5504751430";
 
 if(feedbackForm) {
     feedbackForm.addEventListener("submit", (e) => {
@@ -111,37 +113,26 @@ if(feedbackForm) {
         const message = document.getElementById("fb-message").value.trim();
         const starsString = "★".repeat(selectedRating) + "☆".repeat(5 - selectedRating);
 
-        const textMessage = `📊 Новый отзыв о сайте!\n\n👤 Игрок: ${nick}\n⭐️ Оценка: ${starsString} (${selectedRating}/5)\n💬 Отзыв: ${message}`;
+        // Формируем красивое текстовое сообщение
+        const textMessage = `📊 Новый отзыв о гайде!\n\n👤 Игрок: ${nick}\n⭐️ Оценка: ${starsString}\n💬 Текст: ${message}`;
+
+        // Твой юзернейм бота успешно интегрирован в адрес ссылки
+        const botUsername = "bloodstoneINFO_bot"; 
+
+        if(successMsg) {
+            successMsg.style.display = "block";
+            setTimeout(() => { successMsg.style.display = "none"; }, 4000);
+        }
+
+        // Безопасно кодируем текст для передачи через URL
+        const encodedText = encodeURIComponent(textMessage);
         
-        // Переводим данные в стандартный текстовый формат формы, разрешенный в no-cors
-        const params = new URLSearchParams();
-        params.append("chat_id", chatId);
-        params.append("text", textMessage);
-
-        const telegramUrl = `https://telegram.org{botToken}/sendMessage`;
-
-        // Отправляем как текст — браузер пропустит запрос со 100% гарантией
-        fetch(telegramUrl, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: params
-        })
-        .then(() => {
-            // Очищаем поля и сбрасываем звезды
-            feedbackForm.reset();
-            selectedRating = 0;
-            stars.forEach(s => s.classList.remove("selected"));
-            
-            // Показываем зелёный текст успеха
-            if(successMsg) {
-                successMsg.style.display = "block";
-                setTimeout(() => { successMsg.style.display = "none"; }, 4000);
-            }
-        })
-        .catch(error => {
-            console.error("Ошибка:", error);
-            alert("Произошла непредвиденная ошибка.");
-        });
+        // Открываем бота в новой вкладке и передаем ему текст отзыва в команду /start
+        window.open(`https://t.me{botUsername}?start=${encodedText}`, "_blank");
+        
+        // Сбрасываем форму и звезды на сайте
+        feedbackForm.reset();
+        selectedRating = 0;
+        globalStars.forEach(s => s.classList.remove("selected"));
     });
 }
