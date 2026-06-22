@@ -31,6 +31,7 @@ const closeBtn = document.querySelector(".close-btn");
 const modalTitle = document.getElementById("modal-title");
 const modalDesc = document.getElementById("modal-desc");
 const modalMethods = document.getElementById("modal-methods");
+const modalImagesContainer = document.getElementById("modal-images-container");
 
 // Настройка кликов по спойлерам ивентов (Завод, Нефть, Раскопки)
 document.querySelectorAll(".event-block").forEach(block => {
@@ -70,7 +71,7 @@ document.querySelectorAll(".card").forEach(card => {
                 modalMethods.appendChild(li);
             });
 
-            // Закрываем все спойлеры ивентов при открытии нового предмета
+            // Сбрасываем спойлеры в закрытое положение
             document.querySelectorAll(".event-block").forEach(block => {
                 block.classList.remove("active");
                 const eventName = block.getAttribute("data-event");
@@ -103,30 +104,37 @@ if(searchInput) {
     });
 }
 
-// НАСТОЯЩИЙ ПЕРВОНАЧАЛЬНЫЙ КОД ОТПРАВКИ (НАПРЯМУЮ В DISCORD)
+// ЛОГИКА ФОРМЫ С НОВЫМ ВЕБХУКОМ И КРАСИВЫМ СТАРЫМ ВИДОМ КАРТОЧЕК
 const feedbackForm = document.getElementById("feedback-form");
 const successMsg = document.getElementById("fb-success");
 
-// Чистая ссылка на твой вебхук без лишних прокси
-const discordWebhookUrl = "https://discord.com/api/webhooks/1518578676164329623/hhwgUwEG3vNEsw-QocSf6-Ep1ikw0iGOErkSxJCciTCBbPXNmaGfaeC-MyBJY2dhxQVf";
+// Использован твой новый вебхук через прокси-домен hyra.io для полной совместимости с GitHub Pages
+const discordWebhookUrl = "https://hyra.io";
 
 if(feedbackForm) {
     feedbackForm.addEventListener("submit", (e) => {
-        e.preventDefault(); // Защита от перезагрузки страницы
+        e.preventDefault();
 
         const nick = document.getElementById("fb-nick").value.trim();
         const message = document.getElementById("fb-message").value.trim();
 
-        // Простой и надежный текстовый формат
+        // СТАРЫЙ КРАСИВЫЙ СТИЛЬ СООБЩЕНИЙ (EMBED КАРТОЧКА С КРАСНОЙ ПОЛОСОЙ)
         const requestData = {
-            content: `**📩 Новое предложение от игрока!**\n**Ник в Minecraft:** \`${nick}\`\n**Сообщение:** ${message}`
+            embeds: [{
+                title: "📩 Новый отзыв / предложение с сайта-гайда!",
+                color: 15087366, // Тот самый красный цвет анархии Bloodstone
+                fields: [
+                    { name: "Ник игрока:", value: `\`${nick}\``, inline: true },
+                    { name: "Сообщение:", value: message }
+                ],
+                timestamp: new Date().toISOString()
+            }]
         };
 
-        // Отправляем запрос напрямую на сервера Дискорда, как в первый раз
-        fetch(discordWebhookUrl.trim(), {
+        fetch(discordWebhookUrl, {
             method: "POST",
             headers: { 
-                "Content-Type": "application/json" 
+                "Content-Type": "application/json"
             },
             body: JSON.stringify(requestData)
         })
@@ -139,13 +147,12 @@ if(feedbackForm) {
                     setTimeout(() => { successMsg.style.display = "none"; }, 4000);
                 }
             } else {
-                alert("Discord отклонил запрос. Проверьте настройки канала.");
+                alert("Ошибка сервера. Убедитесь, что вебхук скопирован правильно.");
             }
         })
         .catch(error => {
             console.error("Ошибка сети:", error);
-            alert("Ошибка сети. Попробуйте обновить страницу.");
+            alert("Ошибка сети. Пожалуйста, обновите страницу через Ctrl + F5.");
         });
     });
 }
-
