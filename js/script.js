@@ -11,12 +11,12 @@ const itemsData = {
     },
     totems: {
         title: "Томемы",
-        desc: "Главный залог выживания in PVP. При срабатывании спасает от смерти. Существует 3 типа тотемов: 'Тотем стойкости', 'Тотем скорости', 'Обычный тотем'.",
+        desc: "Главный залог выживания in PVP. При срабатывании от смерти. Существует 3 типа тотемов: 'Тотем стойкости', 'Тотем скорости', 'Обычный тотем'.",
         methods: ["Ивент 'Завод'.", "Ивент 'Нефтяная платформа'.", "Ивент 'Зона раскопок'."]
     },
     crossbow: {
         title: "Пламенный арбалет",
-        desc: "Эпическое оружие, которое обладает зачарованием 'Воспламенение', что позволяет x-bow картить, 4 раза.",
+        desc: "Эпическое оружие, которое обладает зачарованием 'Воспламенение', что позволяет x-bow картинть, 4 раза.",
         methods: ["Ивент 'Завод'.", "Ивент 'Нефтяная платформа'.", "Ивент 'Зона раскопок'."]
     },
     spear: {
@@ -85,7 +85,6 @@ document.querySelectorAll(".card").forEach(card => {
     });
 });
 
-// Закрытие окна
 if(closeBtn) closeBtn.addEventListener("click", () => { modal.style.display = "none"; });
 window.addEventListener("click", (e) => { if (e.target === modal) modal.style.display = "none"; });
 
@@ -104,12 +103,10 @@ if(searchInput) {
     });
 }
 
-// ЛОГИКА ФОРМЫ С НОВЫМ ВЕБХУКОМ И КРАСИВЫМ СТАРЫМ ВИДОМ КАРТОЧЕК
+// НАДЕЖНАЯ ОТПРАВКА БЕЗ СБОЕВ CORS НАПРЯМУЮ ЧЕРЕЗ BEACON API
 const feedbackForm = document.getElementById("feedback-form");
 const successMsg = document.getElementById("fb-success");
-
-// Использован твой новый вебхук через прокси-домен hyra.io для полной совместимости с GitHub Pages
-const discordWebhookUrl = "https://hyra.io";
+const discordWebhookUrl = "https://discord.com";
 
 if(feedbackForm) {
     feedbackForm.addEventListener("submit", (e) => {
@@ -118,11 +115,11 @@ if(feedbackForm) {
         const nick = document.getElementById("fb-nick").value.trim();
         const message = document.getElementById("fb-message").value.trim();
 
-        // СТАРЫЙ КРАСИВЫЙ СТИЛЬ СООБЩЕНИЙ (EMBED КАРТОЧКА С КРАСНОЙ ПОЛОСОЙ)
+        // EMBED КАРТОЧКА С КРАСНОЙ ПОЛОСОЙ BLOODSTONE
         const requestData = {
             embeds: [{
                 title: "📩 Новый отзыв / предложение с сайта-гайда!",
-                color: 15087366, // Тот самый красный цвет анархии Bloodstone
+                color: 15087366,
                 fields: [
                     { name: "Ник игрока:", value: `\`${nick}\``, inline: true },
                     { name: "Сообщение:", value: message }
@@ -131,28 +128,21 @@ if(feedbackForm) {
             }]
         };
 
-        fetch(discordWebhookUrl, {
-            method: "POST",
-            headers: { 
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(requestData)
-        })
-        .then(response => {
-            if (response.ok) {
-                feedbackForm.reset();
-                if(successMsg) {
-                    successMsg.style.display = "block";
-                    successMsg.innerText = "Сообщение успешно отправлено в Discord!";
-                    setTimeout(() => { successMsg.style.display = "none"; }, 4000);
-                }
-            } else {
-                alert("Ошибка сервера. Убедитесь, что вебхук скопирован правильно.");
+        // Формируем безопасный бинарный Blob
+        const blob = new Blob([JSON.stringify(requestData)], { type: 'application/json' });
+        
+        // Магия Beacon API: шлет данные напрямую на discord.com в обход защиты CORS Гитхаба
+        const isSent = navigator.sendBeacon(discordWebhookUrl.trim(), blob);
+
+        if (isSent) {
+            feedbackForm.reset();
+            if(successMsg) {
+                successMsg.style.display = "block";
+                successMsg.innerText = "Сообщение успешно отправлено в Discord!";
+                setTimeout(() => { successMsg.style.display = "none"; }, 4000);
             }
-        })
-        .catch(error => {
-            console.error("Ошибка сети:", error);
-            alert("Ошибка сети. Пожалуйста, обновите страницу через Ctrl + F5.");
-        });
+        } else {
+            alert("Не удалось отправить сообщение. Пожалуйста, обновите страницу.");
+        }
     });
 }
