@@ -11,12 +11,12 @@ const itemsData = {
     },
     totems: {
         title: "Томемы",
-        desc: "Главный залог выживания in PVP. При срабатывании спасает от смерти. Существует 3 типа тотемов: 'Тотем стойкости', 'Тотем скорости', 'Обычный тотем'.",
+        desc: "Главный залог выживания in PVP. При срабатывании от смерти. Существует 3 типа тотемов: 'Тотем стойкости', 'Тотем скорости', 'Обычный тотем'.",
         methods: ["Ивент 'Завод'.", "Ивент 'Нефтяная платформа'.", "Ивент 'Зона раскопок'."]
     },
     crossbow: {
         title: "Пламенный арбалет",
-        desc: "Эпическое оружие, которое обладает зачарованием 'Воспламенение', что позволяет x-bow картить, 4 раза.",
+        desc: "Эпическое оружие, которое обладает зачарованием 'Воспламенение', что позволяет x-bow картинть, 4 раза.",
         methods: ["Ивент 'Завод'.", "Ивент 'Нефтяная платформа'.", "Ивент 'Зона раскопок'."]
     },
     spear: {
@@ -49,8 +49,8 @@ document.querySelectorAll(".event-block").forEach(block => {
         }
     };
 
-    img.addEventListener("click", toggle);
-    hint.addEventListener("click", toggle);
+    if(img) img.addEventListener("click", toggle);
+    if(hint) hint.addEventListener("click", toggle);
 });
 
 // Открытие модального окна предмета
@@ -76,7 +76,7 @@ document.querySelectorAll(".card").forEach(card => {
                 const eventName = block.getAttribute("data-event");
                 const ruNames = { zavod: "Завод", neft: "Нефтяная платформа", raskopki: "Зона раскопок" };
                 const hint = block.querySelector(".event-hint");
-                hint.innerText = `▶ Показать описание ивента '${ruNames[eventName]}'`;
+                if(hint) hint.innerText = `▶ Показать описание ивента '${ruNames[eventName]}'`;
             });
 
             modal.style.display = "flex";
@@ -85,55 +85,57 @@ document.querySelectorAll(".card").forEach(card => {
 });
 
 // Закрытие окна
-closeBtn.addEventListener("click", () => { modal.style.display = "none"; });
+if(closeBtn) closeBtn.addEventListener("click", () => { modal.style.display = "none"; });
 window.addEventListener("click", (e) => { if (e.target === modal) modal.style.display = "none"; });
 
 // Логика поиска
 const searchInput = document.getElementById("search-input");
 const cards = document.querySelectorAll(".card");
 
-searchInput.addEventListener("input", (e) => {
-    const value = e.target.value.toLowerCase().trim();
-    cards.forEach(card => {
-        const itemName = card.querySelector("h3").innerText.toLowerCase();
-        if (itemName.includes(value)) { card.classList.remove("hidden"); } 
-        else { card.classList.add("hidden"); }
+if(searchInput) {
+    searchInput.addEventListener("input", (e) => {
+        const value = e.target.value.toLowerCase().trim();
+        cards.forEach(card => {
+            const itemName = card.querySelector("h3").innerText.toLowerCase();
+            if (itemName.includes(value)) { card.classList.remove("hidden"); } 
+            else { card.classList.add("hidden"); }
+        });
     });
-});
+}
 
-// Логика формы обратной связи с прямой отправкой в Discord
+// Прямая безопасная отправка в Discord без внешних IP-чекеров
 const feedbackForm = document.getElementById("feedback-form");
 const successMsg = document.getElementById("fb-success");
 const discordWebhookUrl = "https://discord.com";
 
-feedbackForm.addEventListener("submit", (e) => {
-    e.preventDefault();
+if(feedbackForm) {
+    feedbackForm.addEventListener("submit", (e) => {
+        e.preventDefault();
 
-    const nick = document.getElementById("fb-nick").value.trim();
-    const message = document.getElementById("fb-message").value.trim();
+        const nick = document.getElementById("fb-nick").value.trim();
+        const message = document.getElementById("fb-message").value.trim();
 
-    // Самый надежный текстовый формат для отправки
-    const requestData = {
-        content: `**📩 Новое предложение от игрока!**\n**Ник:** ${nick}\n**Текст:** ${message}`
-    };
+        const requestData = {
+            content: `**📩 Новое предложение от игрока!**\n**Ник:** ${nick}\n**Текст:** ${message}`
+        };
 
-    fetch(discordWebhookUrl.trim(), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestData)
-    })
-    .then(response => {
-        if (response.ok) {
-            feedbackForm.reset();
-            successMsg.style.display = "block";
-            successMsg.innerText = "Сообщение успешно отправлено в Discord!";
-            setTimeout(() => { successMsg.style.display = "none"; }, 4000);
-        } else {
-            alert("Discord отклонил запрос. Проверьте настройки вебхука.");
-        }
-    })
-    .catch(error => {
-        console.error("Ошибка отправки:", error);
-        alert("Не удалось отправить сообщение. Убедитесь, что сайт запущен через Live Server.");
+        fetch(discordWebhookUrl.trim(), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(requestData)
+        })
+        .then(response => {
+            if (response.ok) {
+                feedbackForm.reset();
+                if(successMsg) {
+                    successMsg.style.display = "block";
+                    successMsg.innerText = "Сообщение успешно отправлено в Discord!";
+                    setTimeout(() => { successMsg.style.display = "none"; }, 4000);
+                }
+            }
+        })
+        .catch(error => {
+            console.error("Ошибка:", error);
+        });
     });
-});
+}
