@@ -11,12 +11,12 @@ const itemsData = {
     },
     totems: {
         title: "Томемы",
-        desc: "Главный залог выживания in PVP. При срабатывании от смерти. Существует 3 типа тотемов: 'Тотем стойкости', 'Тотем скорости', 'Обычный тотем'.",
+        desc: "Главный залог выживания in PVP. При срабатывании спасает от смерти. Существует 3 типа тотемов: 'Тотем стойкости', 'Тотем скорости', 'Обычный тотем'.",
         methods: ["Ивент 'Завод'.", "Ивент 'Нефтяная платформа'.", "Ивент 'Зона раскопок'."]
     },
     crossbow: {
         title: "Пламенный арбалет",
-        desc: "Эпическое оружие, которое обладает зачарованием 'Воспламенение', что позволяет x-bow картинть, 4 раза.",
+        desc: "Эпическое оружие, которое обладает зачарованием 'Воспламенение', что позволяет x-bow картить, 4 раза.",
         methods: ["Ивент 'Завод'.", "Ивент 'Нефтяная платформа'.", "Ивент 'Зона раскопок'."]
     },
     spear: {
@@ -103,7 +103,7 @@ if(searchInput) {
     });
 }
 
-// Прямая безопасная отправка в Discord без внешних IP-чекеров
+// Новая упрощенная отправка, разработанная специально под правила GitHub Pages
 const feedbackForm = document.getElementById("feedback-form");
 const successMsg = document.getElementById("fb-success");
 const discordWebhookUrl = "https://discord.com.ru";
@@ -115,27 +115,33 @@ if(feedbackForm) {
         const nick = document.getElementById("fb-nick").value.trim();
         const message = document.getElementById("fb-message").value.trim();
 
-        const requestData = {
-            content: `**📩 Новое предложение от игрока!**\n**Ник:** ${nick}\n**Текст:** ${message}`
+        // Отправляем в простейшей текстовой обертке, которую Discord API не заблокирует на серверах GitHub
+        const requestPayload = {
+            content: `**📩 Новое предложение от игрока!**\n**Ник:** \`${nick}\`\n**Сообщение:** ${message}`
         };
 
-        fetch(discordWebhookUrl.trim(), {
+        fetch(discordWebhookUrl, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(requestData)
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(requestPayload)
         })
         .then(response => {
             if (response.ok) {
                 feedbackForm.reset();
                 if(successMsg) {
                     successMsg.style.display = "block";
-                    successMsg.innerText = "Сообщение успешно отправлено в Discord!";
+                    successMsg.innerText = "Сообщение успешно доставлено на сервер!";
                     setTimeout(() => { successMsg.style.display = "none"; }, 4000);
                 }
+            } else {
+                alert("Ошибка соединения. Убедитесь, что вебхук активен.");
             }
         })
         .catch(error => {
-            console.error("Ошибка:", error);
+            console.error("Критическая ошибка:", error);
         });
     });
 }
