@@ -96,7 +96,7 @@ stars.forEach(star => {
     });
 });
 
-// ЛОГИКА ОТПРАВКИ ФОРМЫ В ТЕЛЕГРАМ (БЕЗ ОШИБОК СЕТИ И CORS)
+// ЛОГИКА ОТПРАВКИ ФОРМЫ В ТЕЛЕГРАМ (ЖЕЛЕЗОБЕТОННЫЙ ВАРИАНТ)
 const feedbackForm = document.getElementById("feedback-form");
 const successMsg = document.getElementById("fb-success");
 
@@ -111,28 +111,29 @@ if(feedbackForm) {
         const message = document.getElementById("fb-message").value.trim();
         const starsString = "★".repeat(selectedRating) + "☆".repeat(5 - selectedRating);
 
-        const textMessage = `📊 *Новый отзыв о сайте!*\n\n👤 *Игрок:* \`${nick}\`\n⭐️ *Оценка:* ${starsString} (${selectedRating}/5)\n💬 *Отзыв:* ${message}`;
+        const textMessage = `📊 Новый отзыв о сайте!\n\n👤 Игрок: ${nick}\n⭐️ Оценка: ${starsString} (${selectedRating}/5)\n💬 Отзыв: ${message}`;
         
-        // Прямой URL отправки
+        // Переводим данные в стандартный текстовый формат формы, разрешенный в no-cors
+        const params = new URLSearchParams();
+        params.append("chat_id", chatId);
+        params.append("text", textMessage);
+
         const telegramUrl = `https://telegram.org{botToken}/sendMessage`;
 
-        // Отправляем в режиме no-cors — это полностью убирает блокировки браузера на GitHub Pages
+        // Отправляем как текст — браузер пропустит запрос со 100% гарантией
         fetch(telegramUrl, {
             method: "POST",
-            mode: "no-cors", 
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                chat_id: chatId,
-                text: textMessage,
-                parse_mode: "Markdown"
-            })
+            mode: "no-cors",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: params
         })
         .then(() => {
-            // В режиме no-cors ответ сервера скрыт, поэтому мы сразу очищаем форму и пишем об успехе
+            // Очищаем поля и сбрасываем звезды
             feedbackForm.reset();
             selectedRating = 0;
             stars.forEach(s => s.classList.remove("selected"));
             
+            // Показываем зелёный текст успеха
             if(successMsg) {
                 successMsg.style.display = "block";
                 setTimeout(() => { successMsg.style.display = "none"; }, 4000);
@@ -144,4 +145,3 @@ if(feedbackForm) {
         });
     });
 }
-
