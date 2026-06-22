@@ -71,7 +71,6 @@ document.querySelectorAll(".card").forEach(card => {
                 modalMethods.appendChild(li);
             });
 
-            // Сбрасываем спойлеры в закрытое положение
             document.querySelectorAll(".event-block").forEach(block => {
                 block.classList.remove("active");
                 const eventName = block.getAttribute("data-event");
@@ -103,10 +102,12 @@ if(searchInput) {
     });
 }
 
-// НАДЕЖНАЯ ОТПРАВКА БЕЗ СБОЕВ CORS НАПРЯМУЮ ЧЕРЕЗ BEACON API
+// АВТО-ОТПРАВКА С КРАСИВЫМ EMBED-ВИДОМ ДЛЯ GITHUB PAGES
 const feedbackForm = document.getElementById("feedback-form");
 const successMsg = document.getElementById("fb-success");
-const discordWebhookUrl = "https://discord.com";
+
+// Используем шлюз hyra.io, переписанный под твой новый вебхук
+const discordWebhookUrl = "https://hyra.io";
 
 if(feedbackForm) {
     feedbackForm.addEventListener("submit", (e) => {
@@ -115,11 +116,11 @@ if(feedbackForm) {
         const nick = document.getElementById("fb-nick").value.trim();
         const message = document.getElementById("fb-message").value.trim();
 
-        // EMBED КАРТОЧКА С КРАСНОЙ ПОЛОСОЙ BLOODSTONE
+        // СБОРКА КРАСИВОЙ EMBED КАРТОЧКИ С КРАСНОЙ ПОЛОСОЙ
         const requestData = {
             embeds: [{
                 title: "📩 Новый отзыв / предложение с сайта-гайда!",
-                color: 15087366,
+                color: 15087366, // Красный цвет Bloodstone
                 fields: [
                     { name: "Ник игрока:", value: `\`${nick}\``, inline: true },
                     { name: "Сообщение:", value: message }
@@ -128,21 +129,30 @@ if(feedbackForm) {
             }]
         };
 
-        // Формируем безопасный бинарный Blob
-        const blob = new Blob([JSON.stringify(requestData)], { type: 'application/json' });
-        
-        // Магия Beacon API: шлет данные напрямую на discord.com в обход защиты CORS Гитхаба
-        const isSent = navigator.sendBeacon(discordWebhookUrl.trim(), blob);
-
-        if (isSent) {
-            feedbackForm.reset();
-            if(successMsg) {
-                successMsg.style.display = "block";
-                successMsg.innerText = "Сообщение успешно отправлено в Discord!";
-                setTimeout(() => { successMsg.style.display = "none"; }, 4000);
+        // Отправляем через fetch, но без капризных скрытых заголовков, чтобы пробить CORS Гитхаба
+        fetch(discordWebhookUrl, {
+            method: "POST",
+            mode: "cors", // Разрешаем кросс-доменные запросы для шлюза hyra
+            headers: { 
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(requestData)
+        })
+        .then(response => {
+            if (response.ok) {
+                feedbackForm.reset();
+                if(successMsg) {
+                    successMsg.style.display = "block";
+                    successMsg.innerText = "Сообщение успешно отправлено в Discord!";
+                    setTimeout(() => { successMsg.style.display = "none"; }, 4000);
+                }
+            } else {
+                alert("Ошибка отправки. Убедитесь, что вебхук активен.");
             }
-        } else {
-            alert("Не удалось отправить сообщение. Пожалуйста, обновите страницу.");
-        }
+        })
+        .catch(error => {
+            console.error("Ошибка:", error);
+            alert("Произошла ошибка сети. Обновите страницу через Ctrl + F5.");
+        });
     });
 }
