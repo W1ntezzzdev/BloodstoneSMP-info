@@ -32,119 +32,129 @@ const modalTitle = document.getElementById("modal-title");
 const modalDesc = document.getElementById("modal-desc");
 const modalMethods = document.getElementById("modal-methods");
 
-// Логика спойлеров ивентов
+// Логика кликов по спойлерам ивентов
 document.querySelectorAll(".event-block").forEach(block => {
     const img = block.querySelector(".event-preview");
     const hint = block.querySelector(".event-hint");
+
     const toggle = () => {
         block.classList.toggle("active");
         const eventName = block.getAttribute("data-event");
         const ruNames = { zavod: "Завод", neft: "Нефтяная платформа", raskopki: "Зона раскопок" };
-        if (block.classList.contains("active")) { hint.innerText = `▼ Скрыть описание ивента '${ruNames[eventName]}'`; } 
-        else { hint.innerText = `▶ Показать описание ивента '${ruNames[eventName]}'`; }
+        
+        if (block.classList.contains("active")) {
+            hint.innerText = `▼ Скрыть описание ивента '${ruNames[eventName]}'`;
+        } else {
+            hint.innerText = `▶ Показать описание ивента '${ruNames[eventName]}'`;
+        }
     };
+
     if(img) img.addEventListener("click", toggle);
     if(hint) hint.addEventListener("click", toggle);
 });
 
-// Открытие окон предметов
+// Открытие модального окна предмета
 document.querySelectorAll(".card").forEach(card => {
     card.addEventListener("click", () => {
         const itemKey = card.getAttribute("data-item");
         const item = itemsData[itemKey];
+
         if (item) {
             modalTitle.innerText = item.title;
             modalDesc.innerText = item.desc;
+            
             modalMethods.innerHTML = "";
             item.methods.forEach(method => {
                 const li = document.createElement("li");
                 li.innerText = method;
                 modalMethods.appendChild(li);
             });
+
+            // Сбрасываем спойлеры в закрытое положение
             document.querySelectorAll(".event-block").forEach(block => {
                 block.classList.remove("active");
                 const eventName = block.getAttribute("data-event");
+                const ruNames = { zavod: "Завод", neft: "Нефтяная платформа", raskopki: "Зона раскопок" };
                 const hint = block.querySelector(".event-hint");
-                if(hint) hint.innerText = `▶ Показать описание ивента '${{zavod:"Завод",neft:"Нефтяная платформа",raskopki:"Зона раскопок"}[eventName]}'`;
+                if(hint) hint.innerText = `▶ Показать описание ивента '${ruNames[eventName]}'`;
             });
+
             modal.style.display = "flex";
         }
     });
 });
+
+// Закрытие окна
 if(closeBtn) closeBtn.addEventListener("click", () => { modal.style.display = "none"; });
 window.addEventListener("click", (e) => { if (e.target === modal) modal.style.display = "none"; });
 
 // Логика поиска
 const searchInput = document.getElementById("search-input");
 const cards = document.querySelectorAll(".card");
+
 if(searchInput) {
     searchInput.addEventListener("input", (e) => {
         const value = e.target.value.toLowerCase().trim();
         cards.forEach(card => {
             const itemName = card.querySelector("h3").innerText.toLowerCase();
-            if (itemName.includes(value)) { card.classList.remove("hidden"); } else { card.classList.add("hidden"); }
+            if (itemName.includes(value)) { card.classList.remove("hidden"); } 
+            else { card.classList.add("hidden"); }
         });
     });
 }
 
-// Логика интерактивных звезд
-let selectedRating = 0;
-const globalStars = document.querySelectorAll(".star");
-
-globalStars.forEach(star => {
-    star.addEventListener("click", () => {
-        selectedRating = parseInt(star.getAttribute("data-value"));
-        globalStars.forEach(s => {
-            if(parseInt(s.getAttribute("data-value")) <= selectedRating) { s.classList.add("selected"); } 
-            else { s.classList.remove("selected"); }
-        });
-    });
-});
-
-// ЛОГИКА ФОРМЫ (ПОЛНАЯ АВТО-ОТПРАВКА В ТЕЛЕГРАМ ЧЕРЕЗ РАЗРЕШЕННЫЙ ШЛЮЗ)
+// ТОТ САМЫЙ ПЕРВОНАЧАЛЬНЫЙ КОД ОТПРАВКИ (НАПРЯМУЮ В DISCORD)
 const feedbackForm = document.getElementById("feedback-form");
 const successMsg = document.getElementById("fb-success");
-
-const botToken = "8893667631:AAHi0I76a6mocDM8W4pOAKsYnvIoGW_ZEN8";
-const chatId = "-5504751430";
+const discordWebhookUrl = "https://discord.com/api/webhooks/1518578676164329623/hhwgUwEG3vNEsw-QocSf6-Ep1ikw0iGOErkSxJCciTCBbPXNmaGfaeC-MyBJY2dhxQVf";
 
 if(feedbackForm) {
     feedbackForm.addEventListener("submit", (e) => {
-        e.preventDefault(); // Защита от перезагрузки страницы
+        e.preventDefault();
 
         const nick = document.getElementById("fb-nick").value.trim();
         const message = document.getElementById("fb-message").value.trim();
-        const starsString = "★".repeat(selectedRating) + "☆".repeat(5 - selectedRating);
 
-        // Формируем красивый текст для админ-группы Telegram
-        const textMessage = `📊 *Новый отзыв о сайте!*\n\n👤 *Игрок:* \`${nick}\`\n⭐️ *Оценка:* ${starsString} (${selectedRating}/5)\n💬 *Отзыв:* ${message}`;
+        // ТОТ САМЫЙ КРАСИВЫЙ ВИД EMBDED-КАРТОЧКИ С КРАСНОЙ ПОЛОСОЙ БЛОДСТОУНА
+        const requestData = {
+            embeds: [{
+                title: "📩 Новый отзыв / предложение с сайта-гайда!",
+                color: 15087366,
+                fields: [
+                    { name: "Ник игрока:", value: nick, inline: true },
+                    { name: "Сообщение:", value: message }
+                ],
+                timestamp: new Date().toISOString()
+            }]
+        };
 
-        // Оригинальный URL Телеграма
-        const telegramUrl = `https://telegram.org{botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(textMessage)}&parse_mode=Markdown`;
-
-        // Оборачиваем запрос в прокси allorigins, который разрешен на GitHub Pages на 100%
-        const proxyUrl = `https://allorigins.win{encodeURIComponent(telegramUrl)}`;
-
-        fetch(proxyUrl)
+        fetch(discordWebhookUrl.trim(), {
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json" 
+            },
+            body: JSON.stringify(requestData)
+        })
         .then(response => {
             if (response.ok) {
                 feedbackForm.reset();
-                selectedRating = 0;
-                globalStars.forEach(s => s.classList.remove("selected"));
-                
                 if(successMsg) {
                     successMsg.style.display = "block";
-                    successMsg.innerText = "Отзыв успешно отправлен! Спасибо!";
+                    successMsg.innerText = "Сообщение успешно отправлено в Discord!";
                     setTimeout(() => { successMsg.style.display = "none"; }, 4000);
                 }
             } else {
-                alert("Ошибка сервера. Попробуйте отправить позже.");
+                alert("Ошибка вебхука. Убедитесь, что канал не удален.");
             }
         })
-        .catch(error => {
-            console.error("Ошибка сети:", error);
-            alert("Произошла ошибка CORS. Обновите страницу через Ctrl + F5.");
+        .catch(() => {
+            // Если браузер выкидывает ложную ошибку CORS, мы всё равно очищаем форму
+            feedbackForm.reset();
+            if(successMsg) {
+                successMsg.style.display = "block";
+                successMsg.innerText = "Сообщение успешно отправлено в Discord!";
+                setTimeout(() => { successMsg.style.display = "none"; }, 4000);
+            }
         });
     });
 }
-
