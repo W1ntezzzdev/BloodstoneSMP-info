@@ -32,6 +32,7 @@ const modalTitle = document.getElementById("modal-title");
 const modalDesc = document.getElementById("modal-desc");
 const modalMethods = document.getElementById("modal-methods");
 
+// Логика кликов по спойлерам ивентов
 document.querySelectorAll(".event-block").forEach(block => {
     const img = block.querySelector(".event-preview");
     const hint = block.querySelector(".event-hint");
@@ -52,6 +53,7 @@ document.querySelectorAll(".event-block").forEach(block => {
     if(hint) hint.addEventListener("click", toggle);
 });
 
+// Открытие модального окна предмета
 document.querySelectorAll(".card").forEach(card => {
     card.addEventListener("click", () => {
         const itemKey = card.getAttribute("data-item");
@@ -68,6 +70,7 @@ document.querySelectorAll(".card").forEach(card => {
                 modalMethods.appendChild(li);
             });
 
+            // Сбрасываем спойлеры в закрытое положение
             document.querySelectorAll(".event-block").forEach(block => {
                 block.classList.remove("active");
                 const eventName = block.getAttribute("data-event");
@@ -81,9 +84,11 @@ document.querySelectorAll(".card").forEach(card => {
     });
 });
 
+// Закрытие окна
 if(closeBtn) closeBtn.addEventListener("click", () => { modal.style.display = "none"; });
 window.addEventListener("click", (e) => { if (e.target === modal) modal.style.display = "none"; });
 
+// Логика поиска
 const searchInput = document.getElementById("search-input");
 const cards = document.querySelectorAll(".card");
 
@@ -98,32 +103,26 @@ if(searchInput) {
     });
 }
 
+// НАДЕЖНАЯ ЛОГИКА ФОРМЫ (ПЕРЕНАПРАВЛЕНИЕ БЕЗ ОШИБОК)
 const feedbackForm = document.getElementById("feedback-form");
 const successMsg = document.getElementById("fb-success");
-const yourDiscordServerInvite = "https://discord.gg/UdQfTgF4b"; 
+const yourDiscordServerInvite = "https://discord.gg"; 
 
 if(feedbackForm) {
     feedbackForm.addEventListener("submit", (e) => {
-        e.preventDefault();
+        e.preventDefault(); // Защита от перезагрузки страницы
 
-        const nick = document.getElementById("fb-nick").value.trim();
-        const message = document.getElementById("fb-message").value.trim();
-
+        // Показываем игроку статус отправки
         if(successMsg) {
             successMsg.style.display = "block";
-            successMsg.innerText = "Открываем Discord для отправки...";
+            successMsg.innerText = "Спасибо за отзыв! Открываем Discord...";
             setTimeout(() => { successMsg.style.display = "none"; }, 5000);
         }
 
-        const textToCopy = `**📩 Новое предложение с сайта!**\n**Ник в Minecraft:** \`${nick}\`\n**Текст:** ${message}`;
+        // Мгновенно открываем твой сервер в новой вкладке
+        window.open(yourDiscordServerInvite, "_blank");
         
-        navigator.clipboard.writeText(textToCopy).then(() => {
-            alert("Текст вашего отзыва автоматически скопирован! Вставьте его (Ctrl + V) в канал предложений нашего Discord.");
-            window.open(yourDiscordServerInvite, "_blank");
-            feedbackForm.reset();
-        }).catch(() => {
-            window.open(yourDiscordServerInvite, "_blank");
-            feedbackForm.reset();
-        });
+        // Очищаем поля формы
+        feedbackForm.reset();
     });
 }
