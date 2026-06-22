@@ -6,7 +6,7 @@ const itemsData = {
             "Ивент 'Завод'.",
             "Ивент 'Нефтяная платформа'.",
             "Ивент 'Зона раскопок'.",
-            "Ивент 'Аирдроп'." // Оставляем: шардики падают на аирдропе
+            "Ивент 'Аирдроп'." 
         ],
         allowedEvents: ["zavod", "neft", "raskopki", "airdrop"]
     },
@@ -18,7 +18,7 @@ const itemsData = {
             "Ивент 'Нефтяная платформа'.",
             "Ивент 'Зона раскопок'."
         ],
-        allowedEvents: ["zavod", "neft", "raskopki"] // Скрыли аирдроп
+        allowedEvents: ["zavod", "neft", "raskopki"] 
     },
     totems: {
         title: "Томемы",
@@ -27,7 +27,7 @@ const itemsData = {
             "Ивент 'Завод'.",
             "Ивент 'Нефтяная платформа'.",
             "Ивент 'Зона раскопок'.",
-            "Ивент 'Аирдроп'." // Оставляем: тотемы падают на аирдропе
+            "Ивент 'Аирдроп'."
         ],
         allowedEvents: ["zavod", "neft", "raskopki", "airdrop"]
     },
@@ -39,7 +39,7 @@ const itemsData = {
             "Ивент 'Нефтяная платформа'.",
             "Ивент 'Зона раскопок'."
         ],
-        allowedEvents: ["zavod", "neft", "raskopki"] // Скрыли аирдроп
+        allowedEvents: ["zavod", "neft", "raskopki"] 
     },
     spear: {
         title: "Незеритовое копьё",
@@ -47,7 +47,7 @@ const itemsData = {
         methods: [
             "Ивент 'Нефтяная платформа'."
         ],
-        allowedEvents: ["neft"] // Скрыли аирдроп
+        allowedEvents: ["neft"]
     }
 };
 
@@ -57,7 +57,6 @@ const modalTitle = document.getElementById("modal-title");
 const modalDesc = document.getElementById("modal-desc");
 const modalMethods = document.getElementById("modal-methods");
 
-// Настройка кликов по спойлерам ивентов (Завод, Нефть, Раскопки, Аирдроп)
 document.querySelectorAll(".event-block").forEach(block => {
     const img = block.querySelector(".event-preview");
     const hint = block.querySelector(".event-hint");
@@ -78,7 +77,6 @@ document.querySelectorAll(".event-block").forEach(block => {
     if(hint) hint.addEventListener("click", toggle);
 });
 
-// Открытие модального окна предмета
 document.querySelectorAll(".card").forEach(card => {
     card.addEventListener("click", () => {
         const itemKey = card.getAttribute("data-item");
@@ -95,7 +93,6 @@ document.querySelectorAll(".card").forEach(card => {
                 modalMethods.appendChild(li);
             });
 
-            // Динамически скрываем локации, где конкретного предмета нет
             document.querySelectorAll(".event-block").forEach(block => {
                 const eventName = block.getAttribute("data-event");
                 
@@ -119,7 +116,6 @@ document.querySelectorAll(".card").forEach(card => {
 if(closeBtn) closeBtn.addEventListener("click", () => { modal.style.display = "none"; });
 window.addEventListener("click", (e) => { if (e.target === modal) modal.style.display = "none"; });
 
-// Логика поиска
 const searchInput = document.getElementById("search-input");
 const cards = document.querySelectorAll(".card");
 
@@ -134,7 +130,6 @@ if(searchInput) {
     });
 }
 
-// ТОТ САМЫЙ РАБОЧИЙ ВЕБХУК FORMDATA
 const feedbackForm = document.getElementById("feedback-form");
 const successMsg = document.getElementById("fb-success");
 const discordWebhookUrl = "https://discord.com/api/webhooks/1518578676164329623/hhwgUwEG3vNEsw-QocSf6-Ep1ikw0iGOErkSxJCciTCBbPXNmaGfaeC-MyBJY2dhxQVf";
