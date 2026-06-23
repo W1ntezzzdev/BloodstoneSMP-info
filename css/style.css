@@ -111,7 +111,8 @@ header p { color: #888; font-size: 1.1rem; }
     align-items: center;
 }
 
-.card.hidden { display: none; }
+.card.hidden { display: none !important; }
+
 .card:hover {
     transform: translateY(-8px);
     border-color: #e63946;
@@ -142,7 +143,7 @@ header p { color: #888; font-size: 1.1rem; }
     height: 100%;
     background-color: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(8px);
-    z-index: 1000;
+    z-index: 99999;
     justify-content: center;
     align-items: center;
 }
@@ -159,6 +160,7 @@ header p { color: #888; font-size: 1.1rem; }
     box-shadow: 0 0 35px rgba(230, 57, 70, 0.4);
     animation: openModal 0.3s ease-out;
     overflow-y: auto;
+    box-sizing: border-box;
 }
 
 .modal-wrapper { display: flex; gap: 30px; margin-top: 20px; }
@@ -197,6 +199,7 @@ header p { color: #888; font-size: 1.1rem; }
     cursor: pointer;
     transition: color 0.2s;
     line-height: 1;
+    z-index: 10;
 }
 
 .close-btn:hover { color: #e63946; }
@@ -255,7 +258,6 @@ header p { color: #888; font-size: 1.1rem; }
 .btn-submit:active { transform: scale(0.98); }
 .success-msg { display: none; color: #4caf50; font-weight: bold; margin-top: 15px; }
 
-/* 🔮 СТИЛИ ДЛЯ ПЛАВАЮЩЕЙ КНОПКИ ДИСКОРДА */
 .discord-floating-btn {
     position: fixed;
     bottom: 25px;
@@ -270,18 +272,17 @@ header p { color: #888; font-size: 1.1rem; }
     justify-content: center;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.7);
     cursor: pointer;
-    z-index: 999;
+    z-index: 9999;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .discord-floating-btn svg {
     width: 30px;
     height: 30px;
-    fill: #e63946; /* Красный цвет иконки */
+    fill: #e63946;
     transition: fill 0.3s ease, transform 0.3s ease;
 }
 
-/* Эффекты наведения (Неоновый пульс) */
 .discord-floating-btn:hover {
     transform: scale(1.1) translateY(-3px);
     border-color: #e63946;
@@ -289,11 +290,10 @@ header p { color: #888; font-size: 1.1rem; }
 }
 
 .discord-floating-btn:hover svg {
-    fill: #fff; /* Иконка белеет при наведении */
+    fill: #fff;
     transform: rotate(4deg);
 }
 
-/* Адаптив под мобилки (сдвигаем чуть выше, чтобы не мешала пальцам) */
 @media (max-width: 480px) {
     .discord-floating-btn {
         bottom: 20px;
