@@ -196,7 +196,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const nick = document.getElementById("fb-nick").value.trim();
             const message = document.getElementById("fb-message").value.trim();
-            const discordWebhookUrl = "https://discord.com/api/webhooks/1518578676164329623/hhwgUwEG3vNEsw-QocSf6-Ep1ikw0iGOErkSxJCciTCBbPXNmaGfaeC-MyBJY2dhxQVf";
+            const discordWebhookUrl = "https://discord.com/api/webhooks/1518999780502802513/8e9p0KtYAau9WJXExnOLORMhNM1vl_8DsPWKCRUqYo4FdmAd737VP4l9d-SorjU53-VZ";
 
             const embedPayload = {
                 embeds: [{
